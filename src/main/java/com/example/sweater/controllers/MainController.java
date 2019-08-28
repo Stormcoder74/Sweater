@@ -1,8 +1,10 @@
 package com.example.sweater.controllers;
 
 import com.example.sweater.domain.Message;
+import com.example.sweater.domain.User;
 import com.example.sweater.repositoeies.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,9 +28,13 @@ public class MainController {
     }
 
     @PostMapping("/main")
-    public String addMessage(@RequestParam String text, @RequestParam String tag){
+    public String addMessage(
+            @RequestParam String text,
+            @RequestParam String tag,
+            @AuthenticationPrincipal User user){
+
         if (!text.isEmpty() && !tag.isEmpty()) {
-            messageRepository.save(new Message(text, tag));
+            messageRepository.save(new Message(text, tag, user));
         }
         return "redirect:/main";
     }
