@@ -25,6 +25,10 @@ public class RegistrationController {
     public String addUser(User user, Model model) {
         User userfromdb = userRepository.findByUsername(user.getUsername());
 
+        if (user.getUsername().isEmpty() || user.getPassword().isEmpty()){
+            model.addAttribute("message", "Fill in all form fields");
+            return "registration";
+        }
         if (userfromdb != null){
             model.addAttribute("message", "This user already exist");
             return "registration";
