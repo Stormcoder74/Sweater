@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index page</title>
+</head>
+<body>
+    <div>
+        <form action="/logout" method="post">
+            <input type="submit" value="Sign Out"/>
+            <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
+        </form>
+    </div><br><br>
+    <div>
+        <form action="/main" method="post">
+            <input type="text" name="text" placeholder="введите сообщнеие"/>
+            <input type="text" name="tag" placeholder="введите тэг"/>
+            <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
+            <button type="submit">Отправить</button>
+        </form>
+    </div><br>
+    <div>Список сообщений</div>
+    <div>
+        <form action="/filter" method="post">
+            <input type="text" name="filter" placeholder="фильтр"/>
+            <input type="hidden" name="_csrf" value="{{_csrf.token}}"/>
+            <button type="submit">Найти</button>
+        </form>
+    </div><br>
+    {{#messages}}
+        <div>
+            <b>{{id}}</b>
+            <b>{{text}}</b>
+            <b>{{tag}}</b>
+        </div>
+    {{/messages}}
+</body>
+</html>
