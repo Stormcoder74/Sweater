@@ -3,7 +3,6 @@ package com.example.sweater.controllers;
 import com.example.sweater.domain.Message;
 import com.example.sweater.domain.User;
 import com.example.sweater.repositoeies.MessageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,8 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class MainController {
-    @Autowired
-    private MessageRepository messageRepository;
+    private final MessageRepository messageRepository;
+
+    public MainController(MessageRepository messageRepository) {
+        this.messageRepository = messageRepository;
+    }
 
     @GetMapping("/")
     public String greeting() {
@@ -22,8 +24,16 @@ public class MainController {
     }
 
     @GetMapping("/main")
-    public String main(Model model){
-        model.addAttribute("messages", messageRepository.findAll());
+    public String main(Model model,
+                       @RequestParam(required = false, defaultValue = "") String filter){
+
+        if (!filter.isEmpty()) {
+            model.addAttribute("messages", messageRepository.findAllByTag(filter));
+        } else {
+            model.addAttribute("messages", messageRepository.findAll());
+        }
+        model.addAttribute("filter", filter);
+        
         return "main";
     }
 
@@ -37,15 +47,5 @@ public class MainController {
             messageRepository.save(new Message(text, tag, user));
         }
         return "redirect:/main";
-    }
-
-    @PostMapping(path = "/filter")
-    public String addMessage(@RequestParam String filter, Model model){
-        if (!filter.isEmpty()) {
-            model.addAttribute("messages", messageRepository.findAllByTag(filter));
-        } else {
-            model.addAttribute("messages", messageRepository.findAll());
-        }
-        return "main";
     }
 }

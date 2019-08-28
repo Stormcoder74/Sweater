@@ -21,6 +21,7 @@ public class RegistrationController {
         return "registration";
     }
 
+//todo add user не работает
     @PostMapping("/registration")
     public String addUser(User user, Model model) {
         User userfromdb = userRepository.findByUsername(user.getUsername());
