@@ -2,5 +2,6 @@
 
 <@c.page>
     <div>Hello, user!</div><br>
-    <a href="/main">Main page</a>
+    <a href="/main">Main page</a><br>
+    <a href="/user">User list</a>
 </@c.page>

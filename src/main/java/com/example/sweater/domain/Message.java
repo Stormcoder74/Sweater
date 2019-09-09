@@ -3,7 +3,7 @@ package com.example.sweater.domain;
 import javax.persistence.*;
 
 @Entity
-public class Message {
+public class Message implements Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

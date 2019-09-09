@@ -4,6 +4,7 @@
 <@c.page>
     <div>
         <@l.logout />
+        <a href="/user">User list</a>
     </div><br><br>
     <div>
         <form action="/main" method="post">

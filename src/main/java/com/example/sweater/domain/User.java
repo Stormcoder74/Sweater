@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "users")
-public class User implements UserDetails {
+public class User implements UserDetails, Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;

@@ -33,7 +33,7 @@ public class MainController {
             model.addAttribute("messages", messageRepository.findAll());
         }
         model.addAttribute("filter", filter);
-        
+
         return "main";
     }
 
