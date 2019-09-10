@@ -15,6 +15,8 @@ public class Message implements Cloneable {
     @JoinColumn(name = "user_id")
     private User author;
 
+    private String filename;
+
     public Message() {
     }
 
@@ -58,5 +60,13 @@ public class Message implements Cloneable {
 
     public String getAuthorName(){
         return author != null ? author.getUsername() : "<none>";
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 }
