@@ -1,7 +1,7 @@
 <#import "parts/common.ftl" as c>
+<#include "parts/security.ftl">
 
 <@c.page>
-    <div>Hello, user!</div><br>
-    <a href="/main">Main page</a><br>
-    <a href="/user">User list</a>
+    <h5>Hello, ${name}</h5>
+    <h5>This is a simple clone of Tweater</h5>
 </@c.page>

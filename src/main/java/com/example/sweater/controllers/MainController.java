@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -35,35 +36,34 @@ public class MainController {
 
     @GetMapping("/main")
     public String main(Model model,
-                       @RequestParam(required = false, defaultValue = "") String filter){
+                       @RequestParam(required = false, defaultValue = "") String filter) {
 
-        if (!filter.isEmpty()) {
-            model.addAttribute("messages", messageRepository.findAllByTag(filter));
-        } else {
-            model.addAttribute("messages", messageRepository.findAll());
-        }
-        model.addAttribute("filter", filter);
+        Iterable<Message> messages = !filter.isEmpty()
+                ? messageRepository.findAllByTag(filter)
+                : messageRepository.findAll();
 
-        return "main";
-    }
+        model.addAttribute("messages",messages);
+        model.addAttribute("filter",filter);
 
-//TODO после логина в браузере открвается страница slyle.css
+        return"main";
+}
+
     @PostMapping("/main")
     public String addMessage(
             @RequestParam String text,
             @RequestParam String tag,
             @AuthenticationPrincipal User user,
-            @RequestParam("file") MultipartFile file){
+            @RequestParam("file") MultipartFile file) {
 
         Message message = null;
         if (!text.isEmpty() && !tag.isEmpty()) {
             message = new Message(text, tag, user);
         }
 
-        if (file != null && !Objects.requireNonNull(file.getOriginalFilename()).isEmpty() && message != null){
+        if (file != null && !Objects.requireNonNull(file.getOriginalFilename()).isEmpty() && message != null) {
             File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()){
-                if (!uploadDir.mkdir()){
+            if (!uploadDir.exists()) {
+                if (!uploadDir.mkdir()) {
                     System.err.println("Место в файловой системе не доступно для записи!");
                 }
             }
@@ -75,10 +75,8 @@ public class MainController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
+            messageRepository.save(message);
         }
-
-        messageRepository.save(message);
         return "redirect:/main";
     }
 }
