@@ -22,8 +22,11 @@
             </li>
             </#if>
         </ul>
+    <#--todo добавить напоминание о необходимости регистрации-->
         <div class="navbar-text mx-3">${name}</div>
-        <@l.logout />
+        <#if name != "guest">
+            <@l.logout />
+        </#if>
     </div>
 </nav>
 

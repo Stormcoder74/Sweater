@@ -28,17 +28,23 @@ public class RegistrationController {
             model.addAttribute("message", addResult);
             return "registration";
         }
-        return "redirect:/login";
+        //todo добавить ссылку на почтовый сервис
+        model.addAttribute("message", "Registration is successful.<br>" +
+                "We sent email no your address.<br>" +
+                "Please visit your inbox and follow the<br>" +
+                "link to complete your registration");
+        return "login";
     }
 
     @GetMapping("/activate/{code}")
     public String activation(@PathVariable String code, Model model) {
         if (userService.activateAccount(code)){
             model.addAttribute("message", "Account was activated successfully.");
-            return "redirect:/login";
+            return "login";
         } else {
+            //todo добавить вывод ошибки на стартовую страницу
             model.addAttribute("message", "Error of activation.");
-            return "redirect:/";
+            return "/";
         }
     }
 }

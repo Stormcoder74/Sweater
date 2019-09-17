@@ -8,6 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.mail.MessagingException;
 import java.util.Collections;
 import java.util.UUID;
 
@@ -36,7 +37,7 @@ public class UserService implements UserDetailsService {
             return "This user already exist";
         }
 
-        user.setActive(false);
+        user.setActive(true);
         user.setRoles(Collections.singleton(Role.USER));
         user.setActivationCode(UUID.randomUUID().toString());
 
@@ -44,13 +45,17 @@ public class UserService implements UserDetailsService {
 
         String message = String.format(
                         "Hello, %s!\n" +
-                        "Welcome no Sweater! Vizit this link nj complete yor registration!\n" +
-                        "<a href = \"http://localhost:8080/activateAccount/%s\">Confirm link</a>",
+                        "Welcome no Sweater! Visit this link to complete yor registration!\n" +
+                        "<a href = \"http://localhost:8080/activate/%s\">Confirm link</a>",
                 user.getUsername(),
                 user.getActivationCode()
         );
 
-        mailService.send(user.getEmail(), "Activation account", message);
+        try {
+            mailService.send(user.getEmail(), "Activation account", message);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
 
         return "";
     }
@@ -59,7 +64,6 @@ public class UserService implements UserDetailsService {
         User user = userRepository.findByActivationCode(code);
 
         if (user != null) {
-            user.setActive(true);
             user.setActivationCode(null);
             userRepository.save(user);
             return true;
