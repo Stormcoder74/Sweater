@@ -1,20 +1,20 @@
 package com.example.sweater.controllers;
 
-import com.example.sweater.domain.Role;
 import com.example.sweater.domain.User;
-import com.example.sweater.repositoeies.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.sweater.sevises.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-
-import java.util.Collections;
 
 @Controller
 public class RegistrationController {
-    @Autowired
-    UserRepository userRepository;
+    private final UserService userService;
+
+    public RegistrationController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/registration")
     public String registration() {
@@ -23,21 +23,22 @@ public class RegistrationController {
 
     @PostMapping("/registration")
     public String addUser(User user, Model model) {
-        User userfromdb = userRepository.findByUsername(user.getUsername());
-
-        if (user.getUsername().isEmpty() || user.getPassword().isEmpty()){
-            model.addAttribute("message", "Fill in all form fields");
+        String addResult = userService.addUser(user);
+        if (!addResult.isEmpty()){
+            model.addAttribute("message", addResult);
             return "registration";
         }
-        if (userfromdb != null){
-            model.addAttribute("message", "This user already exist");
-            return "registration";
-        }
-
-        user.setActive(true);
-        user.setRoles(Collections.singleton(Role.USER));
-        userRepository.save(user);
-
         return "redirect:/login";
+    }
+
+    @GetMapping("/activate/{code}")
+    public String activation(@PathVariable String code, Model model) {
+        if (userService.activateAccount(code)){
+            model.addAttribute("message", "Account was activated successfully.");
+            return "redirect:/login";
+        } else {
+            model.addAttribute("message", "Error of activation.");
+            return "redirect:/";
+        }
     }
 }
