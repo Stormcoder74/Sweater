@@ -3,6 +3,7 @@ package com.example.sweater.domain;
 import javax.persistence.*;
 
 @Entity
+//todo зачем Cloneable?
 public class Message implements Cloneable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
