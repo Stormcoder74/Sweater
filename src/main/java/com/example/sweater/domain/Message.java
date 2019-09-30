@@ -1,6 +1,9 @@
 package com.example.sweater.domain;
 
+import org.hibernate.validator.constraints.Length;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 //todo зачем Cloneable?
@@ -9,7 +12,10 @@ public class Message implements Cloneable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Please fill the message field!")
+    @Length(max = 2048, message = "Message too long! (more than 2kb)")
     private String text;
+    @Length(max = 32, message = "Tag too long! (more than 32b)")
     private String tag;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -59,7 +65,7 @@ public class Message implements Cloneable {
         this.author = author;
     }
 
-    public String getAuthorName(){
+    public String getAuthorName() {
         return author != null ? author.getUsername() : "<none>";
     }
 

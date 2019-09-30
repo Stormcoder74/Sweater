@@ -7,15 +7,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.Valid;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -43,41 +43,47 @@ public class MainController {
                 ? messageRepository.findAllByTag(filter)
                 : messageRepository.findAll();
 
-        model.addAttribute("messages",messages);
-        model.addAttribute("filter",filter);
+        model.addAttribute("messages", messages);
+        model.addAttribute("filter", filter);
 
-        return"main";
-}
+        return "main";
+    }
 
     @PostMapping("/main")
     public String addMessage(
-            @RequestParam String text,
-            @RequestParam String tag,
+            @Valid Message message,
+            BindingResult bindingResult,
+            Model model,
             @AuthenticationPrincipal User user,
             @RequestParam("file") MultipartFile file) {
+        message.setAuthor(user);
 
-        Message message = null;
-        if (!text.isEmpty() && !tag.isEmpty()) {
-            message = new Message(text, tag, user);
-        }
+        if (bindingResult.hasErrors()) {
+            model.mergeAttributes(ControllerUtils.getErrors(bindingResult));
+            model.addAttribute("message", message);
+        } else {
+            if (file != null && !Objects.requireNonNull(file.getOriginalFilename()).isEmpty()) {
+                File uploadDir = new File(uploadPath);
+                if (!uploadDir.exists()) {
+                    if (!uploadDir.mkdir()) {
+                        System.err.println("Место в файловой системе не доступно для записи!");
+                    }
+                }
 
-        if (file != null && !Objects.requireNonNull(file.getOriginalFilename()).isEmpty() && message != null) {
-            File uploadDir = new File(uploadPath);
-            if (!uploadDir.exists()) {
-                if (!uploadDir.mkdir()) {
-                    System.err.println("Место в файловой системе не доступно для записи!");
+                String resultFilename = UUID.randomUUID().toString() + "." + file.getOriginalFilename();
+                try {
+                    file.transferTo(new File(uploadPath + "\\" + resultFilename));
+                    message.setFilename(resultFilename);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-
-            String resultFilename = UUID.randomUUID().toString() + "." + file.getOriginalFilename();
-            try {
-                file.transferTo(new File(uploadPath + "\\" + resultFilename));
-                message.setFilename(resultFilename);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             messageRepository.save(message);
+            model.addAttribute("message", null);
         }
-        return "redirect:/main";
+        Iterable<Message> messages = messageRepository.findAll();
+        model.addAttribute("messages", messages);
+
+        return "main";
     }
 }

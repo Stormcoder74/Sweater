@@ -24,11 +24,11 @@ public class RegistrationController {
     @PostMapping("/registration")
     public String addUser(User user, Model model) {
         String addResult = userService.addUser(user);
-        if (!addResult.isEmpty()){
+        if (!addResult.isEmpty()) {
             model.addAttribute("message", addResult);
             return "registration";
         }
-        //todo добавить ссылку на почтовый сервис
+        //todo добавить ссылку на почтовый сервис https://habr.com/ru/post/245595/
         model.addAttribute("message", "Registration is successful.<br>" +
                 "We sent email no your address.<br>" +
                 "Please visit your inbox and follow the<br>" +
@@ -38,11 +38,11 @@ public class RegistrationController {
 
     @GetMapping("/activate/{code}")
     public String activation(@PathVariable String code, Model model) {
-        if (userService.activateAccount(code)){
+        if (userService.activateAccount(code)) {
             model.addAttribute("message", "Account was activated successfully.");
             return "login";
         } else {
-            //todo добавить вывод ошибки на стартовую страницу
+            //todo добавить вывод ошибки (на стартовую страницу?)
             model.addAttribute("message", "Error of activation.");
             return "/";
         }

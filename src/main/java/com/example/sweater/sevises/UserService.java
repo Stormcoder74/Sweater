@@ -6,6 +6,7 @@ import com.example.sweater.repositoeies.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -17,10 +18,14 @@ import java.util.stream.Collectors;
 public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final MailService mailService;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, MailService mailService) {
+    public UserService(UserRepository userRepository,
+                       MailService mailService,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.mailService = mailService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -41,6 +46,7 @@ public class UserService implements UserDetailsService {
         user.setActive(true);
         user.setRoles(Collections.singleton(Role.USER));
         user.setActivationCode(UUID.randomUUID().toString());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         userRepository.save(user);
         sendEmail(user);
@@ -50,7 +56,7 @@ public class UserService implements UserDetailsService {
 
     private void sendEmail(User user) {
         String message = String.format(
-                        "Hello, %s!\n" +
+                "Hello, %s!\n" +
                         "Welcome no Sweater! Visit this link to complete yor registration!\n" +
                         "<a href = \"http://localhost:8080/activate/%s\">Confirm link</a>",
                 user.getUsername(),
@@ -104,16 +110,16 @@ public class UserService implements UserDetailsService {
         String userEmail = user.getEmail();
         boolean isEmailChanged = (email != null && !email.equals(userEmail))
                 || (userEmail != null && !userEmail.isEmpty());
-        if (isEmailChanged){
+        if (isEmailChanged) {
             user.setEmail(email);
-            if (!StringUtils.isEmpty(email)){
+            if (!StringUtils.isEmpty(email)) {
                 user.setActivationCode(UUID.randomUUID().toString());
                 //todo ошибка при смене почты
                 sendEmail(user);
             }
         }
 
-        if (StringUtils.isEmpty(password)){
+        if (StringUtils.isEmpty(password)) {
             user.setPassword(password);
         }
         userRepository.save(user);
